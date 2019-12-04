@@ -1,30 +1,30 @@
 use std::marker::PhantomData;
 
-fn run<F: Send>(_: F) {}
+fn drop_send<F: Send>(_: F) {}
 
 trait Object: Send {}
 
-pub trait Trait {
+pub trait Bound {
     type Type;
 }
 
-impl Trait for dyn Object {
+impl Bound for dyn Object {
     type Type = ();
 }
 
 trait Contains<T> {}
 
-struct IsTrait<T: Trait + ?Sized>(PhantomData<dyn Contains<T::Type> + Send>);
+struct IsBound<T: Bound + ?Sized>(PhantomData<dyn Contains<T::Type> + Send>);
 
-impl<T: Trait + ?Sized> IsTrait<T> {
+impl<T: Bound + ?Sized> IsBound<T> {
     pub fn new() -> Self {
-        IsTrait(PhantomData)
+        IsBound(PhantomData)
     }
 }
 
 fn fails() {
-    run(async {
-        let collection: IsTrait<dyn Object> = IsTrait::new();
+    drop_send(async {
+        let collection: IsBound<dyn Object> = IsBound::new();
         async {}.await;
     })
 }
