@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 fn run<F: Send>(_: F) {}
 
 trait Object: Send {}
@@ -12,18 +14,17 @@ impl Trait for Box<dyn Object> {
 
 trait Contains<T> {}
 
-struct IsTrait<T: Trait>(Box<dyn Contains<T::Type> + Send>);
+struct IsTrait<T: Trait>(PhantomData<dyn Contains<T::Type> + Send>);
 
 impl<T: Trait> IsTrait<T> {
-    pub fn new(item: T) -> Self {
-        IsTrait(panic!())
+    pub fn new() -> Self {
+        IsTrait(PhantomData)
     }
 }
 
 fn fails() {
     run(async {
-        let a: Box<dyn Object> = panic!();
-        let collection = IsTrait::new(a);
+        let collection: IsTrait<Box<dyn Object>> = IsTrait::new();
         async {}.await;
     })
 }
