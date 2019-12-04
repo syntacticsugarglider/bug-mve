@@ -25,7 +25,7 @@ impl<T: Trait> IsTrait<T> {
 }
 
 fn fails() {
-    run(async move {
+    run(async {
         let a: Box<dyn Object> = panic!();
         let collection = IsTrait::new(a);
         async {}.await;
