@@ -1,15 +1,11 @@
-use std::{future::Future, pin::Pin};
 use futures::Stream;
+use std::future::Future;
 
 fn run<F: Sync + Send + Future<Output = ()> + 'static>(_: F) {
     unimplemented!()
 }
 
 trait Object: Sync + Send {}
-
-struct Struct;
-
-impl Object for Struct {}
 
 pub trait Trait {
     type Type;
@@ -29,7 +25,8 @@ impl<T: Trait> IsTrait<T> {
 
 fn fails() {
     run(async move {
-        let collection = IsTrait::new(Box::new(Struct) as Box<dyn Object>);
+        let a: Box<dyn Object> = panic!();
+        let collection = IsTrait::new(a);
         async {}.await;
     })
 }
