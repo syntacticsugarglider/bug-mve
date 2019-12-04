@@ -1,10 +1,6 @@
-use std::future::Future;
+fn run<F: Send>(_: F) {}
 
-fn run<F: Send + Future<Output = ()> + 'static>(_: F) {
-    unimplemented!()
-}
-
-trait Object: Sync + Send {}
+trait Object: Send {}
 
 pub trait Trait {
     type Type;
