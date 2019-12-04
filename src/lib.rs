@@ -1,4 +1,3 @@
-use futures::Stream;
 use std::future::Future;
 
 fn run<F: Sync + Send + Future<Output = ()> + 'static>(_: F) {
@@ -15,7 +14,9 @@ impl Trait for Box<dyn Object> {
     type Type = ();
 }
 
-struct IsTrait<T: Trait>(Box<dyn Stream<Item = T::Type> + Sync + Send>);
+trait Contains<T> {}
+
+struct IsTrait<T: Trait>(Box<dyn Contains<T::Type> + Sync + Send>);
 
 impl<T: Trait> IsTrait<T> {
     pub fn new(item: T) -> Self {
