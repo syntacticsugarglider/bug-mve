@@ -1,42 +1,35 @@
-use std::future::Future;
-use vessels::{
-    object,
-    replicate::{collections::List, React},
-    Kind,
-};
+use std::{future::Future, pin::Pin};
+use futures::Stream;
 
 fn run<F: Sync + Send + Future<Output = ()> + 'static>(_: F) {
     unimplemented!()
 }
 
-trait Trait: Sized {
-    type Type;
+trait Object: Sync + Send {}
 
-    fn consume(self) -> Self;
-}
-
-#[object]
-trait Object<T: Kind> {}
-
-#[derive(Kind)]
 struct Struct;
 
-impl Object<()> for Struct {}
+impl Object for Struct {}
 
-impl<T: Kind> Trait for Box<dyn Object<T>> {
+pub trait Trait {
+    type Type;
+}
+
+impl Trait for Box<dyn Object> {
     type Type = ();
+}
 
-    fn consume(self) -> Self {
-        self
+struct IsTrait<T: Trait>(Box<dyn Stream<Item = T::Type> + Sync + Send>);
+
+impl<T: Trait> IsTrait<T> {
+    pub fn new(item: T) -> Self {
+        IsTrait(panic!())
     }
 }
 
-struct IsTrait<T: Trait + Kind>(T);
-
 fn fails() {
     run(async move {
-        //let a = IsTrait(Box::new(Struct) as Box<dyn Object<()>>);
-        let collection = React::new(Box::new(vec![]) as Box<dyn List<String>>);
+        let collection = IsTrait::new(Box::new(Struct) as Box<dyn Object>);
         async {}.await;
     })
 }
