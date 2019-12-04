@@ -8,15 +8,15 @@ pub trait Trait {
     type Type;
 }
 
-impl Trait for Box<dyn Object> {
+impl Trait for dyn Object {
     type Type = ();
 }
 
 trait Contains<T> {}
 
-struct IsTrait<T: Trait>(PhantomData<dyn Contains<T::Type> + Send>);
+struct IsTrait<T: Trait + ?Sized>(PhantomData<dyn Contains<T::Type> + Send>);
 
-impl<T: Trait> IsTrait<T> {
+impl<T: Trait + ?Sized> IsTrait<T> {
     pub fn new() -> Self {
         IsTrait(PhantomData)
     }
@@ -24,7 +24,7 @@ impl<T: Trait> IsTrait<T> {
 
 fn fails() {
     run(async {
-        let collection: IsTrait<Box<dyn Object>> = IsTrait::new();
+        let collection: IsTrait<dyn Object> = IsTrait::new();
         async {}.await;
     })
 }
